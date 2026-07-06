@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#176c5d">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="WorkSpeak">
+    <meta name="description" content="Practice real workplace English conversations with short role-play scenes.">
+    <title>WorkSpeak</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#practice" aria-label="WorkSpeak home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48">
+              <path d="M10 13a7 7 0 0 1 7-7h14a7 7 0 0 1 7 7v9a7 7 0 0 1-7 7h-7l-8 8v-8a7 7 0 0 1-6-7z"></path>
+              <path d="M17 16h14M17 22h8"></path>
+            </svg>
+          </span>
+          <span>
+            <strong>WorkSpeak</strong>
+            <small>Practice for work</small>
+          </span>
+        </a>
+
+        <nav class="nav-tabs" aria-label="Main sections">
+          <a class="nav-link is-active" href="#practice" data-route="practice">Practice</a>
+          <a class="nav-link" href="#phrases" data-route="phrases">Phrases</a>
+          <a class="nav-link" href="#progress" data-route="progress">Progress</a>
+        </nav>
+      </header>
+
+      <section id="practiceView" class="view is-active" aria-labelledby="practiceTitle">
+        <div class="hero-band">
+          <div class="hero-copy">
+            <p class="eyebrow">Real English for real work</p>
+            <h1 id="practiceTitle">Practice the conversation before you need it.</h1>
+            <p>Short workplace role-plays for leave, customers, interviews, delays, complaints, and daily updates.</p>
+          </div>
+          <div class="hero-panel" aria-label="Today's practice summary">
+            <span id="streakNumber">0</span>
+            <p>lines practiced</p>
+          </div>
+        </div>
+
+        <section class="setup-grid" aria-label="Practice setup">
+          <label class="field">
+            <span>Job type</span>
+            <select id="jobType"></select>
+          </label>
+          <label class="field">
+            <span>Confidence goal</span>
+            <select id="goalSelect">
+              <option value="polite">Sound more polite</option>
+              <option value="clear">Speak more clearly</option>
+              <option value="confident">Feel confident</option>
+            </select>
+          </label>
+        </section>
+
+        <section aria-labelledby="scenarioTitle">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Choose a situation</p>
+              <h2 id="scenarioTitle">Workplace role-plays</h2>
+            </div>
+            <button id="resumeButton" class="secondary-button" type="button">Resume last scene</button>
+          </div>
+          <div id="scenarioCards" class="scenario-grid"></div>
+        </section>
+
+        <section class="practice-workspace" aria-label="Role-play workspace">
+          <div class="session-card">
+            <div class="session-head">
+              <div>
+                <p class="eyebrow" id="sceneMeta">Manager conversation</p>
+                <h2 id="sceneTitle">Ask your manager for one day leave</h2>
+              </div>
+              <div class="session-actions">
+                <button id="exampleButton" class="ghost-button" type="button">Listen example</button>
+                <button id="startButton" class="primary-button" type="button">Start</button>
+              </div>
+            </div>
+
+            <div id="conversationLog" class="conversation-log" aria-live="polite"></div>
+
+            <div class="reply-box">
+              <label for="userResponse">Your reply</label>
+              <textarea id="userResponse" rows="3" placeholder="Type your reply or press the mic."></textarea>
+              <p id="micStatus" class="mic-status">Mic works best in Chrome or Edge after the app is hosted on HTTPS.</p>
+              <div class="reply-actions">
+                <button id="micButton" class="icon-button" type="button" title="Speak your reply" aria-label="Speak your reply">
+                  <svg viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"></path></svg>
+                </button>
+                <button id="replyButton" class="primary-button" type="button">Reply</button>
+                <button id="tryAgainButton" class="secondary-button" type="button">Try again</button>
+              </div>
+            </div>
+          </div>
+
+          <aside class="coach-card" aria-label="Feedback">
+            <p class="eyebrow">Coach</p>
+            <h3 id="feedbackTitle">Ready when you are.</h3>
+            <p id="feedbackText">Use simple words first. Then keep the better sentence.</p>
+            <div id="betterSentence" class="better-sentence" hidden></div>
+            <button id="savePhraseButton" class="secondary-button" type="button" disabled>Save phrase</button>
+          </aside>
+        </section>
+      </section>
+
+      <section id="phrasesView" class="view" aria-labelledby="phrasesTitle">
+        <div class="page-title">
+          <p class="eyebrow">Useful phrases</p>
+          <h1 id="phrasesTitle">Saved sentences for work</h1>
+        </div>
+        <div id="savedPhrases" class="phrase-list"></div>
+      </section>
+
+      <section id="progressView" class="view" aria-labelledby="progressTitle">
+        <div class="page-title">
+          <p class="eyebrow">Small wins</p>
+          <h1 id="progressTitle">Progress</h1>
+        </div>
+        <div class="progress-grid">
+          <article>
+            <span id="sessionsDone">0</span>
+            <p>sessions</p>
+          </article>
+          <article>
+            <span id="linesSpoken">0</span>
+            <p>lines practiced</p>
+          </article>
+          <article>
+            <span id="phrasesSaved">0</span>
+            <p>phrases saved</p>
+          </article>
+        </div>
+        <section class="next-step">
+          <h2>Next good step</h2>
+          <p id="progressHint">Repeat one scene three times. Confidence comes from rehearsal.</p>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
