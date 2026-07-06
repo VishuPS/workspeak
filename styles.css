@@ -32,6 +32,7 @@ body {
 
 button,
 select,
+input,
 textarea {
   font: inherit;
 }
@@ -56,6 +57,72 @@ button {
   background: rgba(248, 250, 247, 0.94);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(12px);
+}
+
+.auth-view {
+  display: none;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+  background:
+    linear-gradient(120deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.8)),
+    linear-gradient(135deg, #e8f4ef 0%, #fff8e7 52%, #eef5ff 100%);
+}
+
+body.needs-auth .auth-view {
+  display: grid;
+}
+
+body.needs-auth .app-shell {
+  display: none;
+}
+
+.auth-card {
+  width: min(100%, 460px);
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.auth-brand {
+  margin-bottom: 24px;
+}
+
+.auth-card h1 {
+  margin-bottom: 10px;
+  font-size: clamp(30px, 8vw, 46px);
+  line-height: 1;
+}
+
+.auth-copy,
+.auth-note,
+.auth-message {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.auth-form {
+  display: grid;
+  gap: 14px;
+  margin: 20px 0 14px;
+}
+
+.auth-message {
+  min-height: 20px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.auth-message.is-error {
+  color: #8a2f16;
+  font-weight: 700;
+}
+
+.auth-note {
+  margin-bottom: 0;
+  font-size: 13px;
 }
 
 .brand {
@@ -103,6 +170,30 @@ button {
   padding: 4px;
   background: #edf3ee;
   border-radius: 8px;
+}
+
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-menu span {
+  max-width: 150px;
+  overflow: hidden;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--accent-strong);
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(20, 44, 36, 0.08);
+}
+
+.compact-button {
+  min-height: 40px;
+  padding: 0 12px;
 }
 
 .nav-link {
@@ -233,6 +324,7 @@ p {
 }
 
 select,
+input,
 textarea {
   width: 100%;
   border: 1px solid var(--line);
@@ -246,6 +338,11 @@ select {
   padding: 0 12px;
 }
 
+input {
+  min-height: 48px;
+  padding: 0 12px;
+}
+
 textarea {
   min-height: 96px;
   padding: 12px;
@@ -254,6 +351,7 @@ textarea {
 }
 
 select:focus,
+input:focus,
 textarea:focus,
 button:focus-visible,
 a:focus-visible {
@@ -565,6 +663,15 @@ a:focus-visible {
 
   .nav-tabs {
     width: 100%;
+  }
+
+  .user-menu {
+    width: 100%;
+  }
+
+  .user-menu span,
+  .user-menu button {
+    flex: 1;
   }
 
   .nav-link {

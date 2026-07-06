@@ -14,6 +14,39 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
+    <section id="authView" class="auth-view" aria-labelledby="authTitle">
+      <div class="auth-card">
+        <a class="brand auth-brand" href="#practice" aria-label="WorkSpeak home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48">
+              <path d="M10 13a7 7 0 0 1 7-7h14a7 7 0 0 1 7 7v9a7 7 0 0 1-7 7h-7l-8 8v-8a7 7 0 0 1-6-7z"></path>
+              <path d="M17 16h14M17 22h8"></path>
+            </svg>
+          </span>
+          <span>
+            <strong>WorkSpeak</strong>
+            <small>Practice for work</small>
+          </span>
+        </a>
+        <p class="eyebrow">Personal progress</p>
+        <h1 id="authTitle">Sign in to save your practice.</h1>
+        <p class="auth-copy">Use a simple profile name and PIN on this device. Your phrases and progress stay separate from other users.</p>
+        <form id="authForm" class="auth-form">
+          <label class="field">
+            <span>Your name</span>
+            <input id="profileName" type="text" autocomplete="name" placeholder="Example: Ravi" required>
+          </label>
+          <label class="field">
+            <span>4-digit PIN</span>
+            <input id="profilePin" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="1234" required>
+          </label>
+          <p id="authMessage" class="auth-message" aria-live="polite"></p>
+          <button class="primary-button" type="submit">Continue</button>
+        </form>
+        <p class="auth-note">This MVP login saves progress in this browser only. Cloud accounts come later.</p>
+      </div>
+    </section>
+
     <main class="app-shell">
       <header class="topbar">
         <a class="brand" href="#practice" aria-label="WorkSpeak home">
@@ -34,6 +67,11 @@
           <a class="nav-link" href="#phrases" data-route="phrases">Phrases</a>
           <a class="nav-link" href="#progress" data-route="progress">Progress</a>
         </nav>
+
+        <div class="user-menu" aria-label="Current profile">
+          <span id="profileBadge">Guest</span>
+          <button id="logoutButton" class="ghost-button compact-button" type="button">Switch</button>
+        </div>
       </header>
 
       <section id="practiceView" class="view is-active" aria-labelledby="practiceTitle">
@@ -126,6 +164,7 @@
         <div class="page-title">
           <p class="eyebrow">Small wins</p>
           <h1 id="progressTitle">Progress</h1>
+          <p id="progressProfile">Your practice history on this device.</p>
         </div>
         <div class="progress-grid">
           <article>

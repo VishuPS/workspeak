@@ -302,16 +302,49 @@ const storage = {
   }
 };
 
+const auth = {
+  usersKey: "workspeak.users",
+  currentKey: "workspeak.currentUser",
+  normalizeName(name) {
+    return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  },
+  getUsers() {
+    return storage.get(this.usersKey, {});
+  },
+  saveUsers(users) {
+    storage.set(this.usersKey, users);
+  },
+  getCurrentUserId() {
+    return storage.get(this.currentKey, "");
+  },
+  setCurrentUserId(id) {
+    storage.set(this.currentKey, id);
+  },
+  clearCurrentUser() {
+    localStorage.removeItem(this.currentKey);
+  },
+  key(suffix) {
+    return `workspeak.user.${state.currentUser.id}.${suffix}`;
+  }
+};
+
 const state = {
+  currentUser: null,
   scenario: scenarios[0],
   turnIndex: 0,
   lastSuggestion: "",
-  savedPhrases: storage.get("workspeak.phrases", []),
-  progress: storage.get("workspeak.progress", { sessions: 0, lines: 0 }),
-  lastSceneId: storage.get("workspeak.lastSceneId", scenarios[0].id)
+  savedPhrases: [],
+  progress: { sessions: 0, lines: 0 },
+  lastSceneId: scenarios[0].id
 };
 
 const elements = {
+  authForm: document.querySelector("#authForm"),
+  profileName: document.querySelector("#profileName"),
+  profilePin: document.querySelector("#profilePin"),
+  authMessage: document.querySelector("#authMessage"),
+  profileBadge: document.querySelector("#profileBadge"),
+  logoutButton: document.querySelector("#logoutButton"),
   jobType: document.querySelector("#jobType"),
   goalSelect: document.querySelector("#goalSelect"),
   scenarioCards: document.querySelector("#scenarioCards"),
@@ -335,21 +368,22 @@ const elements = {
   linesSpoken: document.querySelector("#linesSpoken"),
   phrasesSaved: document.querySelector("#phrasesSaved"),
   streakNumber: document.querySelector("#streakNumber"),
-  progressHint: document.querySelector("#progressHint")
+  progressHint: document.querySelector("#progressHint"),
+  progressProfile: document.querySelector("#progressProfile")
 };
 
 function init() {
   jobTypes.forEach((job) => elements.jobType.append(new Option(job, job)));
   renderScenarioCards();
-  selectScenario(state.lastSceneId, false);
   bindEvents();
-  renderSavedPhrases();
-  renderProgress();
   updateMicStatus();
+  restoreSession();
   route();
 }
 
 function bindEvents() {
+  elements.authForm.addEventListener("submit", handleAuthSubmit);
+  elements.logoutButton.addEventListener("click", logout);
   elements.resumeButton.addEventListener("click", () => {
     selectScenario(state.lastSceneId, true);
     document.querySelector(".practice-workspace").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -361,6 +395,94 @@ function bindEvents() {
   elements.savePhraseButton.addEventListener("click", saveCurrentPhrase);
   elements.micButton.addEventListener("click", listenToUser);
   window.addEventListener("hashchange", route);
+}
+
+function restoreSession() {
+  const users = auth.getUsers();
+  const currentUserId = auth.getCurrentUserId();
+  if (currentUserId && users[currentUserId]) {
+    signIn(users[currentUserId]);
+    return;
+  }
+
+  document.body.classList.add("needs-auth");
+  elements.profileName.focus();
+}
+
+function handleAuthSubmit(event) {
+  event.preventDefault();
+  const name = elements.profileName.value.trim();
+  const pin = elements.profilePin.value.trim();
+  const id = auth.normalizeName(name);
+
+  if (!id) {
+    showAuthMessage("Please enter your name.", true);
+    return;
+  }
+
+  if (!/^\d{4}$/.test(pin)) {
+    showAuthMessage("Use a simple 4-digit PIN.", true);
+    return;
+  }
+
+  const users = auth.getUsers();
+  const existing = users[id];
+  if (existing && existing.pin !== pin) {
+    showAuthMessage("That PIN does not match this profile.", true);
+    return;
+  }
+
+  const user = existing || {
+    id,
+    name,
+    pin,
+    createdAt: new Date().toISOString()
+  };
+
+  users[id] = user;
+  auth.saveUsers(users);
+  signIn(user);
+}
+
+function signIn(user) {
+  state.currentUser = user;
+  auth.setCurrentUserId(user.id);
+  loadUserData();
+  document.body.classList.remove("needs-auth");
+  elements.profileBadge.textContent = user.name;
+  elements.progressProfile.textContent = `${user.name}'s practice history on this device.`;
+  elements.profilePin.value = "";
+  showAuthMessage("", false);
+  selectScenario(state.lastSceneId, false);
+  renderSavedPhrases();
+  renderProgress();
+}
+
+function logout() {
+  auth.clearCurrentUser();
+  state.currentUser = null;
+  state.savedPhrases = [];
+  state.progress = { sessions: 0, lines: 0 };
+  state.lastSceneId = scenarios[0].id;
+  resetConversation();
+  renderSavedPhrases();
+  renderProgress();
+  elements.profileName.value = "";
+  elements.profilePin.value = "";
+  elements.profileBadge.textContent = "Guest";
+  document.body.classList.add("needs-auth");
+  elements.profileName.focus();
+}
+
+function showAuthMessage(message, isError) {
+  elements.authMessage.textContent = message;
+  elements.authMessage.classList.toggle("is-error", isError);
+}
+
+function loadUserData() {
+  state.savedPhrases = storage.get(auth.key("phrases"), []);
+  state.progress = storage.get(auth.key("progress"), { sessions: 0, lines: 0 });
+  state.lastSceneId = storage.get(auth.key("lastSceneId"), scenarios[0].id);
 }
 
 function route() {
@@ -400,7 +522,9 @@ function renderScenarioCards() {
 function selectScenario(id, startNow) {
   state.scenario = scenarios.find((scenario) => scenario.id === id) || scenarios[0];
   state.lastSceneId = state.scenario.id;
-  storage.set("workspeak.lastSceneId", state.lastSceneId);
+  if (state.currentUser) {
+    storage.set(auth.key("lastSceneId"), state.lastSceneId);
+  }
 
   elements.sceneTitle.textContent = state.scenario.title;
   elements.sceneMeta.textContent = `${state.scenario.role} conversation`;
@@ -499,7 +623,7 @@ function saveCurrentPhrase() {
   if (!phrase || state.savedPhrases.includes(phrase)) return;
 
   state.savedPhrases.unshift(phrase);
-  storage.set("workspeak.phrases", state.savedPhrases);
+  storage.set(auth.key("phrases"), state.savedPhrases);
   renderSavedPhrases();
   renderProgress();
   showFeedback("Saved", "This phrase is now in your saved list.", phrase);
@@ -635,7 +759,7 @@ function renderProgress() {
 }
 
 function saveProgress() {
-  storage.set("workspeak.progress", state.progress);
+  storage.set(auth.key("progress"), state.progress);
   renderProgress();
 }
 

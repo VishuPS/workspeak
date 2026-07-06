@@ -14,6 +14,7 @@ The product is built around short scripted role-play scenes so the experience fe
 - Simple feedback with better and more polite sentences
 - Saved useful phrases with local storage
 - Progress counters with local storage
+- Local profile login with separate progress per user on the same device
 - Offline-ready PWA files
 - Mobile-first responsive layout
 
@@ -50,3 +51,9 @@ Recommended Cloudflare Pages settings:
 Speech recognition is browser-dependent. It works best in Chrome or Edge on `https://` or `localhost`.
 
 When opened as a local `file://` page, the mic may not work. Cloudflare Pages hosting should improve this because the app will run on HTTPS.
+
+## Login support
+
+The current login is an MVP profile system. It stores each user's progress in the browser's local storage using a profile name and 4-digit PIN.
+
+This is useful for testing personal progress, but it is not secure cloud authentication. For real accounts across devices, add Supabase, Firebase, or another auth backend later.
